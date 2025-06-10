@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -58,5 +59,15 @@ class PermissionsManager @Inject constructor(
         } else {
             null
         }
+    }
+
+    // Media Permission Methods
+    fun hasNotificationListenerPermission(): Boolean {
+        val enabledListeners = NotificationManagerCompat.getEnabledListenerPackages(context)
+        return enabledListeners.contains(context.packageName)
+    }
+
+    fun getNotificationListenerSettingsIntent(): Intent {
+        return Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
     }
 }

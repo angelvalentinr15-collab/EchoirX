@@ -19,6 +19,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.Error
 import androidx.compose.material.icons.outlined.FilterAlt
+import androidx.compose.material.icons.outlined.MusicNote
+import androidx.compose.material.icons.outlined.MusicOff
+import androidx.compose.material.icons.outlined.NotificationsOff
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -53,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import app.echoirx.R
+import app.echoirx.data.permission.PermissionsManager
 import app.echoirx.data.utils.extensions.formatErrorMessage
 import app.echoirx.data.utils.extensions.showSnackbar
 import app.echoirx.domain.model.SearchResult
@@ -84,6 +88,8 @@ fun SearchScreen(
     var showBottomSheet by remember { mutableStateOf(false) }
     var showFilterBottomSheet by remember { mutableStateOf(false) }
     val isPreviewPlaying by viewModel.isPreviewPlaying.collectAsState()
+    val currentMediaInfo by viewModel.currentMediaInfo.collectAsState()
+    val hasMediaPermission by viewModel.hasMediaPermission.collectAsState()
 
     LaunchedEffect(Unit) {
         navController.currentBackStackEntry?.savedStateHandle?.let { savedState ->
@@ -171,6 +177,43 @@ fun SearchScreen(
                         }
                     )
                 )
+
+                IconButton(
+                    onClick = {
+                        when {
+                            !hasMediaPermission -> {
+                                val intent = PermissionsManager(context).getNotificationListenerSettingsIntent()
+                                context.startActivity(intent)
+                            }
+                            currentMediaInfo?.isPlaying == true -> {
+                                viewModel.searchCurrentMedia()
+                                focusManager.clearFocus()
+                                snackbarHostState.showSnackbar(
+                                    scope = coroutineScope,
+                                    message = context.getString(
+                                        R.string.msg_searching_current_media,
+                                        currentMediaInfo?.getDisplayText() ?: ""
+                                    )
+                                )
+                            }
+                            else -> {
+                                snackbarHostState.showSnackbar(
+                                    scope = coroutineScope,
+                                    message = context.getString(R.string.msg_no_media_playing)
+                                )
+                            }
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = when {
+                            !hasMediaPermission -> Icons.Outlined.NotificationsOff
+                            currentMediaInfo?.isPlaying == true -> Icons.Outlined.MusicNote
+                            else -> Icons.Outlined.MusicOff
+                        },
+                        contentDescription = null
+                    )
+                }
 
                 IconButton(
                     onClick = { showFilterBottomSheet = true }
