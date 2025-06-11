@@ -14,12 +14,12 @@ fun PreferenceCategory(
 ) {
     Text(
         text = title,
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.primary,
         modifier = modifier.padding(
             top = 24.dp,
-            start = 16.dp,
-            end = 16.dp,
+            start = 8.dp,
+            end = 8.dp,
             bottom = 8.dp
         )
     )
