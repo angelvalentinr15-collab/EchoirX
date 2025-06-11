@@ -35,16 +35,16 @@ fun PreferenceItem(
     val shape = when (position) {
         PreferencePosition.Single -> MaterialTheme.shapes.large
         PreferencePosition.Top -> MaterialTheme.shapes.large.copy(
-            bottomStart = MaterialTheme.shapes.small.bottomStart,
-            bottomEnd = MaterialTheme.shapes.small.bottomEnd
+            bottomStart = MaterialTheme.shapes.extraSmall.bottomStart,
+            bottomEnd = MaterialTheme.shapes.extraSmall.bottomEnd
         )
 
         PreferencePosition.Bottom -> MaterialTheme.shapes.large.copy(
-            topStart = MaterialTheme.shapes.small.topStart,
-            topEnd = MaterialTheme.shapes.small.topEnd
+            topStart = MaterialTheme.shapes.extraSmall.topStart,
+            topEnd = MaterialTheme.shapes.extraSmall.topEnd
         )
 
-        PreferencePosition.Middle -> MaterialTheme.shapes.small
+        PreferencePosition.Middle -> MaterialTheme.shapes.extraSmall
     }
 
     Surface(
