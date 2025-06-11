@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,6 +32,28 @@ fun EmptyStateMessage(
     icon: ImageVector? = null,
     painter: Painter? = null
 ) {
+    val randomShape = remember {
+        val shapes = listOf(
+            MaterialShapes.Circle,
+            MaterialShapes.Square,
+            MaterialShapes.Slanted,
+            MaterialShapes.Arch,
+            MaterialShapes.Pill,
+            MaterialShapes.Sunny,
+            MaterialShapes.VerySunny,
+            MaterialShapes.Cookie4Sided,
+            MaterialShapes.Cookie6Sided,
+            MaterialShapes.Cookie7Sided,
+            MaterialShapes.Cookie9Sided,
+            MaterialShapes.Cookie12Sided,
+            MaterialShapes.Ghostish,
+            MaterialShapes.Clover4Leaf,
+            MaterialShapes.Clover8Leaf,
+            MaterialShapes.SoftBurst
+        )
+        shapes.random()
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -45,7 +68,7 @@ fun EmptyStateMessage(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .size(192.dp)
-                    .clip(MaterialShapes.Cookie4Sided.toShape())
+                    .clip(randomShape.toShape())
                     .background(MaterialTheme.colorScheme.primaryContainer)
                     .padding(24.dp)
             ) {
