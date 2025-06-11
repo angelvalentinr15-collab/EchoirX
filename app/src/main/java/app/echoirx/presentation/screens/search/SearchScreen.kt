@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,18 +21,19 @@ import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.MusicOff
 import androidx.compose.material.icons.outlined.NotificationsOff
+import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.ToggleButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -51,6 +51,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -182,9 +185,11 @@ fun SearchScreen(
                     onClick = {
                         when {
                             !hasMediaPermission -> {
-                                val intent = PermissionsManager(context).getNotificationListenerSettingsIntent()
+                                val intent =
+                                    PermissionsManager(context).getNotificationListenerSettingsIntent()
                                 context.startActivity(intent)
                             }
+
                             currentMediaInfo?.isPlaying == true -> {
                                 viewModel.searchCurrentMedia()
                                 focusManager.clearFocus()
@@ -196,6 +201,7 @@ fun SearchScreen(
                                     )
                                 )
                             }
+
                             else -> {
                                 snackbarHostState.showSnackbar(
                                     scope = coroutineScope,
@@ -226,28 +232,32 @@ fun SearchScreen(
             }
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
             ) {
-                SearchType.entries.forEach { type ->
-                    InputChip(
-                        selected = state.searchType == type,
-                        onClick = {
-                            viewModel.onSearchTypeChange(type)
-                            focusManager.clearFocus()
-                        },
-                        label = {
-                            Text(
-                                text = stringResource(type.title),
-                            )
-                        },
-                        shape = MaterialTheme.shapes.extraLarge
-                    )
-                }
+                SearchType.entries.forEachIndexed { index, type ->
+                    val isSelected = state.searchType == type
 
-                Spacer(
-                    modifier = Modifier.weight(1f)
-                )
+                    ToggleButton(
+                        checked = isSelected,
+                        onCheckedChange = {
+                            if (!isSelected) {
+                                viewModel.onSearchTypeChange(type)
+                                focusManager.clearFocus()
+                            }
+                        },
+                        modifier = Modifier.semantics { role = Role.RadioButton },
+                        shapes = if (index == 0) {
+                            ButtonGroupDefaults.connectedLeadingButtonShapes()
+                        } else {
+                            ButtonGroupDefaults.connectedTrailingButtonShapes()
+                        }
+                    ) {
+                        Text(
+                            text = stringResource(type.title),
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    }
+                }
             }
         }
 
