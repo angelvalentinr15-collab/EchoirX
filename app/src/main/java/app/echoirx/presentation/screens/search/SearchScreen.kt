@@ -29,11 +29,12 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedToggleButton
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -241,7 +242,7 @@ fun SearchScreen(
                 SearchType.entries.forEachIndexed { index, type ->
                     val isSelected = state.searchType == type
 
-                    ToggleButton(
+                    OutlinedToggleButton(
                         checked = isSelected,
                         onCheckedChange = {
                             if (!isSelected) {
@@ -250,6 +251,9 @@ fun SearchScreen(
                             }
                         },
                         modifier = Modifier.semantics { role = Role.RadioButton },
+                        colors = ToggleButtonDefaults.outlinedToggleButtonColors(
+                            checkedContainerColor = MaterialTheme.colorScheme.primary
+                        ),
                         shapes = if (index == 0) {
                             ButtonGroupDefaults.connectedLeadingButtonShapes()
                         } else {
@@ -258,7 +262,7 @@ fun SearchScreen(
                     ) {
                         Text(
                             text = stringResource(type.title),
-                            style = MaterialTheme.typography.labelMedium
+                            style = MaterialTheme.typography.labelLarge
                         )
                     }
                 }
