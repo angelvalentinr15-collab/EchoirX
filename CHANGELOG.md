@@ -1,20 +1,10 @@
 ### Changelog
 
-#### Version 1.7
-**Release Date:** May 16, 2025
+#### Version 1.8
+**Release Date:** June 16, 2025
 
 ---
-- **New Features:** Revamped UI with Material Expressive Theme for enhanced visual experience.
-
-> [!IMPORTANT]
-> **Understanding the Region Filter**
-> 
-> The Region Filter is a SEARCH FILTER, NOT a country selection:
-> - Purpose: Filter search results by track availability in specific music markets
-> - **Only affects search results**
-> - Helps discover tracks available in different regions
-> - Some tracks are only available in certain markets
-> - Default is Brazil (BR)
+- idk
 
 > [!WARNING]
 > **Potential Download Limitations**
