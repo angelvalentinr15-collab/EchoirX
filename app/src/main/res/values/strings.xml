@@ -72,6 +72,18 @@
     <string name="title_include_track_number">Include Track Number</string>
     <string name="title_use_cloudflare_dns">Use Cloudflare DNS</string>
 
+    <!-- Permission Titles -->
+    <string name="permission_storage_title">Storage Access</string>
+    <string name="permission_manage_storage_title">Manage Storage</string>
+    <string name="permission_post_notifications_title">Notifications</string>
+    <string name="permission_notification_listener_title">Media Detection</string>
+
+    <!-- Permission Descriptions -->
+    <string name="permission_storage_description">EchoirX needs storage access to save your downloaded music files to your device.</string>
+    <string name="permission_manage_storage_description">On Android 11+, EchoirX needs special permission to manage files. This allows the app to organize your downloads efficiently.</string>
+    <string name="permission_post_notifications_description">Get notified about download progress and completion. You can disable specific notification types in settings later.</string>
+    <string name="permission_notification_listener_description">Allow EchoirX to detect currently playing music and suggest downloads. This is completely optional but enhances your experience.</string>
+
     <!-- Subtitles -->
     <string name="subtitle_save_cover_art">Save album artwork as a separate file</string>
     <string name="subtitle_save_lyrics">Save track lyrics as a separate file</string>
@@ -106,9 +118,6 @@
     <string name="msg_no_search_history">No search history</string>
     <string name="msg_no_search_history_desc">Your recent searches will appear here</string>
     <string name="msg_clear_search_history_subtitle">Remove all your saved searches</string>
-
-    <!-- Media Session -->
-    <string name="msg_media_permission_granted">Media access permission granted</string>
     <string name="msg_no_media_playing">No media currently playing</string>
     <string name="msg_searching_current_media">Searching for: %s</string>
 
@@ -148,6 +157,8 @@
     <string name="action_stop_preview">Stop Preview</string>
     <string name="action_retry_download">Retry Download</string>
     <string name="action_download_with_quality">Download (%1$s)</string>
+    <string name="action_grant_permission">Grant Permission</string>
+    <string name="action_skip">Skip</string>
 
     <!-- Quality Labels -->
     <string name="quality_label_hires">Hi-Res</string>

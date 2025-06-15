@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import app.echoirx.R
 import app.echoirx.data.media.AudioPreviewPlayer
 import app.echoirx.data.media.MediaSessionManager
-import app.echoirx.data.permission.PermissionsManager
+import app.echoirx.data.permission.PermissionManager
 import app.echoirx.domain.model.DownloadRequest
 import app.echoirx.domain.model.QualityConfig
 import app.echoirx.domain.model.SearchHistoryItem
@@ -36,25 +36,40 @@ class SearchViewModel @Inject constructor(
     private val settingsUseCase: SettingsUseCase,
     private val audioPreviewPlayer: AudioPreviewPlayer,
     private val mediaSessionManager: MediaSessionManager,
-    private val permissionsManager: PermissionsManager,
+    private val permissionManager: PermissionManager,
     @param:ApplicationContext private val context: Context
 ) : ViewModel() {
     private val _state = MutableStateFlow(SearchState())
     val state: StateFlow<SearchState> = _state.asStateFlow()
 
+    private val _hasMediaPermission = MutableStateFlow(false)
+    val hasMediaPermission: StateFlow<Boolean> = _hasMediaPermission.asStateFlow()
+
     val isPreviewPlaying = audioPreviewPlayer.isPlaying
     val currentMediaInfo = mediaSessionManager.currentMediaInfo
-    val hasMediaPermission = mediaSessionManager.hasMediaPermission
 
     init {
         loadSearchHistory()
         setupQueryListener()
+        checkMediaPermission()
         initializeMediaSession()
+    }
+
+    private fun checkMediaPermission() {
+        val hasPermission = permissionManager.hasNotificationListenerPermission()
+        _hasMediaPermission.value = hasPermission
+    }
+
+    fun checkPermissionAndUpdate() {
+        checkMediaPermission()
+        if (_hasMediaPermission.value && !mediaSessionManager.hasMediaPermission.value) {
+            initializeMediaSession()
+        }
     }
 
     private fun initializeMediaSession() {
         viewModelScope.launch {
-            if (permissionsManager.hasNotificationListenerPermission()) {
+            if (permissionManager.hasNotificationListenerPermission()) {
                 try {
                     mediaSessionManager.startMonitoring()
                     mediaSessionManager.registerCallbackForActiveControllers()
@@ -83,8 +98,9 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun checkMediaPermissions(): Boolean {
-        return permissionsManager.hasNotificationListenerPermission()
+    fun openNotificationListenerSettings() {
+        val intent = permissionManager.getNotificationListenerSettingsIntent()
+        context.startActivity(intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
     private fun loadSearchHistory() {
@@ -200,7 +216,6 @@ class SearchViewModel @Inject constructor(
 
                 val serverUrl = settingsUseCase.getServerUrl()
 
-                // Check if using example server before attempting network request
                 if (serverUrl.contains("example.com")) {
                     _state.update {
                         it.copy(
@@ -217,7 +232,6 @@ class SearchViewModel @Inject constructor(
                     SearchType.ALBUMS -> searchUseCase.searchAlbums(query)
                 }
 
-                // Add to search history with validation
                 if (query.isNotBlank()) {
                     searchHistoryRepository.addSearch(query.trim(), currentState.searchType.name)
                 }
@@ -234,7 +248,6 @@ class SearchViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
-                // Check if the error might be related to the example server
                 val serverUrl = settingsUseCase.getServerUrl()
                 val isExampleServer = serverUrl.contains("example.com") ||
                         e.message?.contains("example.com") == true

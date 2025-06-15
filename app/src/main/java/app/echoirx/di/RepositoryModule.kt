@@ -8,7 +8,8 @@ import app.echoirx.data.media.FFmpegProcessor
 import app.echoirx.data.media.MediaSessionManager
 import app.echoirx.data.media.MetadataManager
 import app.echoirx.data.notification.DownloadNotificationManager
-import app.echoirx.data.permission.PermissionsManager
+import app.echoirx.data.permission.PermissionDataStore
+import app.echoirx.data.permission.PermissionManager
 import app.echoirx.data.remote.api.ApiService
 import app.echoirx.data.repository.DownloadRepositoryImpl
 import app.echoirx.data.repository.SearchHistoryRepositoryImpl
@@ -53,9 +54,16 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun providePermissionsManager(
+    fun providePermissionDataStore(
         @ApplicationContext context: Context
-    ): PermissionsManager = PermissionsManager(context)
+    ): PermissionDataStore = PermissionDataStore(context)
+
+    @Provides
+    @Singleton
+    fun providePermissionManager(
+        @ApplicationContext context: Context,
+        permissionDataStore: PermissionDataStore
+    ): PermissionManager = PermissionManager(context, permissionDataStore)
 
     @Provides
     @Singleton

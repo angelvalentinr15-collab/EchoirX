@@ -59,12 +59,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import app.echoirx.R
-import app.echoirx.data.permission.PermissionsManager
+import app.echoirx.data.permission.PermissionType
 import app.echoirx.data.utils.extensions.formatErrorMessage
 import app.echoirx.data.utils.extensions.showSnackbar
 import app.echoirx.domain.model.SearchResult
 import app.echoirx.presentation.components.EmptyStateMessage
 import app.echoirx.presentation.components.TrackBottomSheet
+import app.echoirx.presentation.components.permission.PermissionBottomSheet
 import app.echoirx.presentation.navigation.NavConstants
 import app.echoirx.presentation.navigation.Route
 import app.echoirx.presentation.screens.search.components.FilterBottomSheet
@@ -90,6 +91,7 @@ fun SearchScreen(
     var selectedTrack by remember { mutableStateOf<SearchResult?>(null) }
     var showBottomSheet by remember { mutableStateOf(false) }
     var showFilterBottomSheet by remember { mutableStateOf(false) }
+    var showPermissionBottomSheet by remember { mutableStateOf(false) }
     val isPreviewPlaying by viewModel.isPreviewPlaying.collectAsState()
     val currentMediaInfo by viewModel.currentMediaInfo.collectAsState()
     val hasMediaPermission by viewModel.hasMediaPermission.collectAsState()
@@ -103,6 +105,10 @@ fun SearchScreen(
                     savedState[NavConstants.KEY_FOCUS_SEARCH_BAR] = false
                 }
         }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.checkPermissionAndUpdate()
     }
 
     Column(
@@ -185,9 +191,7 @@ fun SearchScreen(
                     onClick = {
                         when {
                             !hasMediaPermission -> {
-                                val intent =
-                                    PermissionsManager(context).getNotificationListenerSettingsIntent()
-                                context.startActivity(intent)
+                                showPermissionBottomSheet = true
                             }
 
                             currentMediaInfo?.isPlaying == true -> {
@@ -440,6 +444,22 @@ fun SearchScreen(
                 viewModel.onSearchContentFilterRemoved(contentFilter)
             },
             onDismiss = { showFilterBottomSheet = false }
+        )
+    }
+
+    if (showPermissionBottomSheet) {
+        PermissionBottomSheet(
+            permissionType = PermissionType.NOTIFICATION_LISTENER,
+            onRequestPermission = {
+                showPermissionBottomSheet = false
+            },
+            onOpenSettings = {
+                viewModel.openNotificationListenerSettings()
+                showPermissionBottomSheet = false
+            },
+            onDismiss = {
+                showPermissionBottomSheet = false
+            }
         )
     }
 }
