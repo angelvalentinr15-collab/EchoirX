@@ -11,13 +11,13 @@ on:
         description: 'Create Release?'
         required: true
         type: boolean
-        default: false
+        default: true
 
       draft:
         description: 'Create as draft?'
         required: true
         type: boolean
-        default: true
+        default: false
 
       abi:
         description: 'Select ABI to upload'
@@ -35,8 +35,14 @@ on:
   pull_request:
     types: [opened, synchronize]
 
+  push:
+    branches: [main]
+
 jobs:
   build:
+    if: github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'chore(app)'))
     runs-on: ubuntu-latest
 
     steps:
@@ -90,7 +96,8 @@ jobs:
           retention-days: 7
 
       - name: Create Release
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.release }}
+        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.release) ||
+          (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'chore(app)')) }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -98,5 +105,5 @@ jobs:
           gh release create "v${VERSION}" \
             --title "Echoir v${VERSION}" \
             --notes-file CHANGELOG.md \
-            ${{ inputs.draft && '--draft' || '' }} \
+            ${{ github.event_name == 'workflow_dispatch' && inputs.draft && '--draft' || '' }} \
             app/build/outputs/apk/release/*.apk

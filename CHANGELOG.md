@@ -1,10 +1,14 @@
 ### Changelog
 
-#### Version 1.8
-**Release Date:** June 16, 2025
+#### Version 1.9
+**Release Date:** Aug 09, 2025
 
 ---
-- idk
+- Japanese and Arabic Translations
+- UI Changes
+- Misc fixes (tidal url search, music detection and more)
+- Added back AAC 320 quality warning
+- Gradle updates
 
 > [!WARNING]
 > **Potential Download Limitations**
