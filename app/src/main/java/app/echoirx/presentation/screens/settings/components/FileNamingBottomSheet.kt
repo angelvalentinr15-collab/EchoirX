@@ -49,19 +49,19 @@ fun FileNamingBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
+        modifier = modifier,
         sheetState = sheetState,
-        modifier = modifier
+        shape = MaterialTheme.shapes.large
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(horizontal = 16.dp)
                 .padding(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -73,7 +73,7 @@ fun FileNamingBottomSheet(
 
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(3.dp)
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 itemsIndexed(formats) { index, format ->
                     val isSelected = format == selectedFormat
@@ -84,101 +84,123 @@ fun FileNamingBottomSheet(
                         else -> PreferencePosition.Middle
                     }
 
-                    val shape = when (position) {
-                        PreferencePosition.Single -> MaterialTheme.shapes.extraLarge
-                        PreferencePosition.Top -> MaterialTheme.shapes.extraLarge.copy(
-                            bottomStart = MaterialTheme.shapes.small.bottomStart,
-                            bottomEnd = MaterialTheme.shapes.small.bottomEnd
-                        )
-
-                        PreferencePosition.Bottom -> MaterialTheme.shapes.extraLarge.copy(
-                            topStart = MaterialTheme.shapes.small.topStart,
-                            topEnd = MaterialTheme.shapes.small.topEnd
-                        )
-
-                        PreferencePosition.Middle -> MaterialTheme.shapes.small
-                    }
-
-                    ListItem(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .clip(shape)
-                            .clickable { onSelectFormat(format) },
-                        colors = ListItemDefaults.colors(
-                            containerColor = if (isSelected)
-                                MaterialTheme.colorScheme.secondaryContainer
-                            else
-                                MaterialTheme.colorScheme.surfaceContainerHigh
-                        ),
-                        headlineContent = {
-                            Text(
-                                text = stringResource(format.displayNameResId),
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                color = if (isSelected)
-                                    MaterialTheme.colorScheme.onSecondaryContainer
-                                else
-                                    MaterialTheme.colorScheme.onSurface
-                            )
-                        },
-                        leadingContent = {
-                            Icon(
-                                imageVector = format.icon,
-                                contentDescription = null,
-                                tint = if (isSelected)
-                                    MaterialTheme.colorScheme.onSecondaryContainer
-                                else
-                                    MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        },
-                        trailingContent = {
-                            RadioButton(
-                                selected = isSelected,
-                                onClick = { onSelectFormat(format) },
-                                colors = RadioButtonDefaults.colors(
-                                    selectedColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            )
-                        }
+                    FileFormatItem(
+                        format = format,
+                        isSelected = isSelected,
+                        position = position,
+                        onClick = { onSelectFormat(format) }
                     )
                 }
             }
 
-            ListItem(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .clip(MaterialTheme.shapes.extraLarge),
-                colors = ListItemDefaults.colors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                ),
-                headlineContent = {
-                    Text(
-                        text = stringResource(R.string.title_include_track_number),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-                leadingContent = {
-                    Icon(
-                        imageVector = Icons.Outlined.FormatListNumbered,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                trailingContent = {
-                    ThumbSwitch(
-                        checked = includeTrackNumber,
-                        onCheckedChange = onToggleTrackNumber
-                    )
-                }
+            TrackNumberItem(
+                includeTrackNumber = includeTrackNumber,
+                onToggleTrackNumber = onToggleTrackNumber
             )
         }
     }
+}
+
+@Composable
+private fun FileFormatItem(
+    format: FileNamingFormat,
+    isSelected: Boolean,
+    position: PreferencePosition,
+    onClick: () -> Unit
+) {
+    val shape = when (position) {
+        PreferencePosition.Single -> MaterialTheme.shapes.large
+        PreferencePosition.Top -> MaterialTheme.shapes.large.copy(
+            bottomStart = MaterialTheme.shapes.extraSmall.bottomStart,
+            bottomEnd = MaterialTheme.shapes.extraSmall.bottomEnd
+        )
+        PreferencePosition.Bottom -> MaterialTheme.shapes.large.copy(
+            topStart = MaterialTheme.shapes.extraSmall.topStart,
+            topEnd = MaterialTheme.shapes.extraSmall.topEnd
+        )
+        PreferencePosition.Middle -> MaterialTheme.shapes.extraSmall
+    }
+
+    ListItem(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .clickable { onClick() },
+        colors = ListItemDefaults.colors(
+            containerColor = if (isSelected)
+                MaterialTheme.colorScheme.secondaryContainer
+            else
+                MaterialTheme.colorScheme.surfaceContainerHigh
+        ),
+        headlineContent = {
+            Text(
+                text = stringResource(format.displayNameResId),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                color = if (isSelected)
+                    MaterialTheme.colorScheme.onSecondaryContainer
+                else
+                    MaterialTheme.colorScheme.onSurface
+            )
+        },
+        leadingContent = {
+            Icon(
+                imageVector = format.icon,
+                contentDescription = null,
+                tint = if (isSelected)
+                    MaterialTheme.colorScheme.onSecondaryContainer
+                else
+                    MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        },
+        trailingContent = {
+            RadioButton(
+                selected = isSelected,
+                onClick = { onClick() },
+                colors = RadioButtonDefaults.colors(
+                    selectedColor = MaterialTheme.colorScheme.primary,
+                    unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            )
+        }
+    )
+}
+
+@Composable
+private fun TrackNumberItem(
+    includeTrackNumber: Boolean,
+    onToggleTrackNumber: (Boolean) -> Unit
+) {
+    ListItem(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.large),
+        colors = ListItemDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        ),
+        headlineContent = {
+            Text(
+                text = stringResource(R.string.title_include_track_number),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        leadingContent = {
+            Icon(
+                imageVector = Icons.Outlined.FormatListNumbered,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        },
+        trailingContent = {
+            ThumbSwitch(
+                checked = includeTrackNumber,
+                onCheckedChange = onToggleTrackNumber
+            )
+        }
+    )
 }
