@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import app.echoirx.BuildConfig
 import app.echoirx.R
@@ -65,6 +66,14 @@ fun SettingsScreen(
     ) { isGranted ->
         if (isGranted) {
             dirPicker.launch(null)
+        }
+    }
+
+    fun openUrl(url: String) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, url.toUri())
+            context.startActivity(intent)
+        } catch (_: Exception) {
         }
     }
 
@@ -263,7 +272,25 @@ fun SettingsScreen(
             PreferenceItem(
                 title = stringResource(R.string.app_name),
                 subtitle = stringResource(R.string.msg_about_version, BuildConfig.VERSION_NAME),
-                position = PreferencePosition.Single,
+                position = PreferencePosition.Top
+            )
+        }
+
+        item {
+            PreferenceItem(
+                title = stringResource(R.string.title_github),
+                subtitle = stringResource(R.string.subtitle_github),
+                onClick = { openUrl(context.getString(R.string.url_github)) },
+                position = PreferencePosition.Middle
+            )
+        }
+
+        item {
+            PreferenceItem(
+                title = stringResource(R.string.title_telegram_community),
+                subtitle = stringResource(R.string.subtitle_telegram_community),
+                onClick = { openUrl(context.getString(R.string.url_telegram)) },
+                position = PreferencePosition.Bottom
             )
         }
 
