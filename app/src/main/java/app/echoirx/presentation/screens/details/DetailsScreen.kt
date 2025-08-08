@@ -16,6 +16,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -64,80 +65,88 @@ fun DetailsScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Column(
+        Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(16.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            shape = MaterialTheme.shapes.large
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                TrackCover(
-                    url = result.cover?.replace("80x80", "160x160"),
-                    size = 72.dp
-                )
-
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(
-                        text = result.title,
-                        style = MaterialTheme.typography.titleLarge,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
+                    TrackCover(
+                        url = result.cover?.replace("80x80", "160x160"),
+                        size = 72.dp
                     )
 
-                    Text(
-                        text = result.artists.joinToString(", "),
-                        style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        if (result.formats?.let { "DOLBY_ATMOS" in it } == true) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_dolby),
-                                contentDescription = stringResource(R.string.cd_dolby_atmos),
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                        if (result.explicit) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_explicit),
-                                contentDescription = stringResource(R.string.cd_explicit_content),
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
                         Text(
-                            text = result.duration,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary
+                            text = result.title,
+                            style = MaterialTheme.typography.titleLarge,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
+
+                        Text(
+                            text = result.artists.joinToString(", "),
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (result.formats?.let { "DOLBY_ATMOS" in it } == true) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_dolby),
+                                    contentDescription = stringResource(R.string.cd_dolby_atmos),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                            if (result.explicit) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_explicit),
+                                    contentDescription = stringResource(R.string.cd_explicit_content),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                            Text(
+                                text = result.duration,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 }
-            }
 
-            DownloadOptions(
-                formats = result.formats,
-                modes = result.modes,
-                onOptionSelected = { config ->
-                    viewModel.downloadAlbum(config)
-                    snackbarHostState.showSnackbar(
-                        scope = coroutineScope,
-                        message = context.getString(
-                            R.string.msg_download_started,
-                            context.getString(config.label)
+                DownloadOptions(
+                    formats = result.formats,
+                    modes = result.modes,
+                    onOptionSelected = { config ->
+                        viewModel.downloadAlbum(config)
+                        snackbarHostState.showSnackbar(
+                            scope = coroutineScope,
+                            message = context.getString(
+                                R.string.msg_download_started,
+                                context.getString(config.label)
+                            )
                         )
-                    )
-                }
-            )
+                    }
+                )
+            }
         }
 
         Box(modifier = Modifier.weight(1f)) {
