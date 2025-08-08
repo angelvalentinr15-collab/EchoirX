@@ -9,7 +9,7 @@ data class CurrentMediaInfo(
 ) {
     fun getSearchQuery(): String {
         return when {
-            title.isNotEmpty() && artist.isNotEmpty() -> "$artist $title"
+            title.isNotEmpty() && artist.isNotEmpty() -> "$title $artist"
             title.isNotEmpty() -> title
             artist.isNotEmpty() -> artist
             else -> ""
