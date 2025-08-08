@@ -30,6 +30,7 @@
     <string name="cd_clear">消去</string>
 
     <!-- Labels -->
+    <string name="label_both">Both</string>
     <string name="label_explicit">Explicit</string>
     <string name="label_tracks">トラック</string>
     <string name="label_albums">アルバム</string>

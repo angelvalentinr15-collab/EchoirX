@@ -37,8 +37,9 @@ data class SearchFilter(
 
 enum class SearchContentFilter(
     @param:StringRes val label: Int,
-    val explicit: Boolean
+    val explicit: Boolean?
 ) {
+    BOTH(R.string.label_both, null),
     CLEAN(R.string.label_clean, false),
     EXPLICIT(R.string.label_explicit, true),
 }

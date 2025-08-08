@@ -33,6 +33,7 @@
     <string name="cd_clear">Clear</string>
 
     <!-- Labels -->
+    <string name="label_both">Both</string>
     <string name="label_explicit">Explicit</string>
     <string name="label_dolby_atmos" translatable="false">Dolby Atmos</string>
     <string name="label_dolby" translatable="false">Dolby</string>

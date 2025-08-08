@@ -30,6 +30,7 @@
     <string name="cd_clear">مسح</string>
 
     <!-- التسميات -->
+    <string name="label_both">الكل</string>
     <string name="label_explicit">صريح</string>
     <string name="label_tracks">المسارات</string>
     <string name="label_albums">الألبومات</string>
