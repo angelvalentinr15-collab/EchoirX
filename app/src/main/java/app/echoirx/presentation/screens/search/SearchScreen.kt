@@ -57,6 +57,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import app.echoirx.R
 import app.echoirx.data.permission.PermissionType
@@ -87,6 +90,7 @@ fun SearchScreen(
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
     val coroutineScope = rememberCoroutineScope()
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     var selectedTrack by remember { mutableStateOf<SearchResult?>(null) }
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -107,8 +111,10 @@ fun SearchScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.checkPermissionAndUpdate()
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewModel.checkPermissionAndUpdate()
+        }
     }
 
     Column(
@@ -223,6 +229,7 @@ fun SearchScreen(
 
                 FilledTonalIconButton(
                     onClick = {
+                        viewModel.checkPermissionAndUpdate()
                         when {
                             !hasMediaPermission -> {
                                 showPermissionBottomSheet = true
