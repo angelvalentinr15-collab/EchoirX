@@ -1,10 +1,13 @@
 package app.echoirx.presentation.screens.home.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DeleteOutline
@@ -13,12 +16,13 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -32,13 +36,16 @@ import app.echoirx.domain.model.Download
 import app.echoirx.domain.model.DownloadStatus
 import app.echoirx.domain.model.QualityConfig
 import app.echoirx.presentation.components.TrackCover
+import app.echoirx.presentation.components.preferences.PreferencePosition
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DownloadItem(
+    modifier: Modifier = Modifier,
     download: Download,
-    modifier: Modifier = Modifier
+    position: PreferencePosition = PreferencePosition.Single,
+    onClick: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
 
@@ -52,32 +59,42 @@ fun DownloadItem(
         else -> stringResource(R.string.label_unknown)
     }.uppercase(Locale.getDefault())
 
-    ListItem(
-        modifier = modifier,
-        overlineContent = {
-            Text(
-                text = qualityText,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.secondary
-            )
-        },
-        headlineContent = {
-            Text(
-                text = download.searchResult.title,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
-        supportingContent = {
-            Text(
-                text = download.searchResult.artists.joinToString(", "),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
-        leadingContent = {
+    val shape = when (position) {
+        PreferencePosition.Single -> MaterialTheme.shapes.large
+        PreferencePosition.Top -> MaterialTheme.shapes.large.copy(
+            bottomStart = MaterialTheme.shapes.extraSmall.bottomStart,
+            bottomEnd = MaterialTheme.shapes.extraSmall.bottomEnd
+        )
+
+        PreferencePosition.Bottom -> MaterialTheme.shapes.large.copy(
+            topStart = MaterialTheme.shapes.extraSmall.topStart,
+            topEnd = MaterialTheme.shapes.extraSmall.topEnd
+        )
+
+        PreferencePosition.Middle -> MaterialTheme.shapes.extraSmall
+    }
+
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .then(
+                if (onClick != null) {
+                    Modifier.clickable { onClick() }
+                } else {
+                    Modifier
+                }
+            ),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        shape = shape
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
             Box {
                 TrackCover(
                     url = download.searchResult.cover,
@@ -90,7 +107,7 @@ fun DownloadItem(
                             .size(60.dp)
                             .background(
                                 color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
-                                shape = MaterialTheme.shapes.extraSmall
+                                shape = MaterialTheme.shapes.medium
                             ),
                         contentAlignment = Alignment.Center
                     ) {
@@ -113,8 +130,33 @@ fun DownloadItem(
                     }
                 }
             }
-        },
-        trailingContent = {
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = qualityText,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Text(
+                    text = download.searchResult.title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Text(
+                    text = download.searchResult.artists.joinToString(", "),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
             Column(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -125,7 +167,6 @@ fun DownloadItem(
                             text = stringResource(R.string.label_queued),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
-
                         )
                     }
 
@@ -171,10 +212,13 @@ fun DownloadItem(
                         )
                     }
                 }
+
                 Text(
                     text = download.searchResult.duration,
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+
                 if (download.searchResult.explicit) {
                     Icon(
                         painter = painterResource(R.drawable.ic_explicit),
@@ -184,5 +228,5 @@ fun DownloadItem(
                 }
             }
         }
-    )
+    }
 }

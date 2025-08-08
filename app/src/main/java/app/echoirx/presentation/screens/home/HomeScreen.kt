@@ -1,7 +1,7 @@
 package app.echoirx.presentation.screens.home
 
 import android.content.Intent
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -31,6 +31,7 @@ import app.echoirx.data.utils.extensions.showSnackbar
 import app.echoirx.domain.model.Download
 import app.echoirx.presentation.components.DownloadBottomSheet
 import app.echoirx.presentation.components.EmptyStateMessage
+import app.echoirx.presentation.components.preferences.PreferencePosition
 import app.echoirx.presentation.screens.home.components.DownloadItem
 
 @Composable
@@ -77,14 +78,21 @@ fun HomeScreen(
 
         else -> {
             LazyColumn(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 if (state.activeDownloads.isNotEmpty()) {
                     item(key = "active_downloads_header") {
                         Text(
                             text = stringResource(R.string.title_active_downloads),
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(
+                                top = 24.dp,
+                                start = 24.dp,
+                                end = 24.dp,
+                                bottom = 8.dp
+                            )
                         )
                     }
 
@@ -92,9 +100,18 @@ fun HomeScreen(
                         items = state.activeDownloads,
                         key = { index, download -> "active_${download.downloadId}_$index" }
                     ) { index, download ->
+                        val position = when {
+                            state.activeDownloads.size == 1 -> PreferencePosition.Single
+                            index == 0 -> PreferencePosition.Top
+                            index == state.activeDownloads.size - 1 -> PreferencePosition.Bottom
+                            else -> PreferencePosition.Middle
+                        }
+
                         DownloadItem(
-                            download = download
-                            // Don't make active downloads clickable
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            download = download,
+                            position = position,
+                            onClick = null
                         )
                     }
                 }
@@ -103,11 +120,12 @@ fun HomeScreen(
                     item(key = "download_history_header") {
                         Text(
                             text = stringResource(R.string.title_download_history),
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(
-                                start = 16.dp,
-                                end = 16.dp,
-                                top = if (state.activeDownloads.isNotEmpty()) 16.dp else 8.dp,
+                                top = if (state.activeDownloads.isNotEmpty()) 32.dp else 24.dp,
+                                start = 24.dp,
+                                end = 24.dp,
                                 bottom = 8.dp
                             )
                         )
@@ -117,9 +135,18 @@ fun HomeScreen(
                         items = state.downloadHistory,
                         key = { index, download -> "history_${download.downloadId}_$index" }
                     ) { index, download ->
+                        val position = when {
+                            state.downloadHistory.size == 1 -> PreferencePosition.Single
+                            index == 0 -> PreferencePosition.Top
+                            index == state.downloadHistory.size - 1 -> PreferencePosition.Bottom
+                            else -> PreferencePosition.Middle
+                        }
+
                         DownloadItem(
+                            modifier = Modifier.padding(horizontal = 16.dp),
                             download = download,
-                            modifier = Modifier.clickable {
+                            position = position,
+                            onClick = {
                                 selectedDownload = download
                                 showBottomSheet = true
                             }
