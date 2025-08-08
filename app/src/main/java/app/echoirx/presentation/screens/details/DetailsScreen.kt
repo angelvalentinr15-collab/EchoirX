@@ -1,9 +1,9 @@
 package app.echoirx.presentation.screens.details
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,10 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -42,6 +39,8 @@ import app.echoirx.domain.model.SearchResult
 import app.echoirx.presentation.components.DownloadOptions
 import app.echoirx.presentation.components.TrackBottomSheet
 import app.echoirx.presentation.components.TrackCover
+import app.echoirx.presentation.components.preferences.PreferencePosition
+import app.echoirx.presentation.screens.details.components.AlbumTrackItem
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -141,10 +140,6 @@ fun DetailsScreen(
             )
         }
 
-        HorizontalDivider(
-            modifier = Modifier.padding(horizontal = 8.dp),
-        )
-
         Box(modifier = Modifier.weight(1f)) {
             when {
                 state.isLoading -> {
@@ -166,80 +161,30 @@ fun DetailsScreen(
 
                 state.tracks.isNotEmpty() -> {
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                        contentPadding = PaddingValues(bottom = 8.dp)
                     ) {
                         itemsIndexed(
                             items = state.tracks,
                             key = { index, track -> "album_track_${track.id}_$index" }
                         ) { index, track ->
-                            ListItem(
-                                headlineContent = {
-                                    Text(
-                                        text = track.title,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        style = MaterialTheme.typography.bodyLarge
-                                    )
-                                },
-                                supportingContent = {
-                                    Text(
-                                        text = track.artists.joinToString(", "),
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                },
-                                leadingContent = {
-                                    Text(
-                                        text = String.format(
-                                            java.util.Locale.getDefault(),
-                                            "%02d",
-                                            index + 1
-                                        ),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                },
-                                trailingContent = {
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Column(
-                                            horizontalAlignment = Alignment.End,
-                                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                                        ) {
-                                            Text(
-                                                text = track.duration,
-                                                style = MaterialTheme.typography.bodySmall
-                                            )
-                                            if (track.explicit) {
-                                                Icon(
-                                                    painter = painterResource(R.drawable.ic_explicit),
-                                                    contentDescription = stringResource(R.string.cd_explicit_content),
-                                                    modifier = Modifier.size(16.dp),
-                                                )
-                                            }
-                                        }
+                            val position = when {
+                                state.tracks.size == 1 -> PreferencePosition.Single
+                                index == 0 -> PreferencePosition.Top
+                                index == state.tracks.size - 1 -> PreferencePosition.Bottom
+                                else -> PreferencePosition.Middle
+                            }
 
-                                        Icon(
-                                            painter = painterResource(R.drawable.ic_download),
-                                            contentDescription = stringResource(R.string.cd_download_button),
-                                            modifier = Modifier.size(20.dp),
-                                            tint = MaterialTheme.colorScheme.primary
-                                        )
-                                    }
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        selectedTrack = track
-                                        showBottomSheet = true
-                                    },
-                                colors = ListItemDefaults.colors(
-                                    containerColor = MaterialTheme.colorScheme.surface
-                                )
+                            AlbumTrackItem(
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                track = track,
+                                trackNumber = index + 1,
+                                position = position,
+                                onClick = {
+                                    selectedTrack = track
+                                    showBottomSheet = true
+                                }
                             )
                         }
                     }
