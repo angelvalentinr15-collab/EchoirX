@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -26,6 +27,7 @@ import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -129,67 +131,101 @@ fun SearchScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            TextField(
+                value = state.query,
+                onValueChange = { viewModel.onQueryChange(it) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                ),
+                shape = MaterialTheme.shapes.extraLarge,
+                placeholder = {
+                    Text(
+                        text = stringResource(
+                            R.string.hint_search,
+                            stringResource(state.searchType.title)
+                        ),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                },
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_search),
+                        contentDescription = stringResource(R.string.cd_search)
+                    )
+                },
+                trailingIcon = {
+                    if (state.query.isNotEmpty()) {
+                        IconButton(
+                            onClick = { viewModel.clearSearch() }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_clear),
+                                contentDescription = stringResource(R.string.cd_clear_search)
+                            )
+                        }
+                    }
+                },
+                singleLine = true,
+                textStyle = MaterialTheme.typography.bodyLarge,
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Search
+                ),
+                keyboardActions = KeyboardActions(
+                    onSearch = {
+                        if (state.status == SearchStatus.Ready) {
+                            viewModel.search()
+                            focusManager.clearFocus()
+                        }
+                    }
+                )
+            )
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextField(
-                    value = state.query,
-                    onValueChange = { viewModel.onQueryChange(it) },
-                    modifier = Modifier
-                        .weight(1f)
-                        .focusRequester(focusRequester),
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                    ),
-                    shape = MaterialTheme.shapes.extraLarge,
-                    placeholder = {
-                        Text(
-                            text = stringResource(
-                                R.string.hint_search,
-                                stringResource(state.searchType.title)
-                            ),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    },
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_search),
-                            contentDescription = stringResource(R.string.cd_search)
-                        )
-                    },
-                    trailingIcon = {
-                        if (state.query.isNotEmpty()) {
-                            IconButton(
-                                onClick = { viewModel.clearSearch() }
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.ic_clear),
-                                    contentDescription = stringResource(R.string.cd_clear_search)
-                                )
-                            }
-                        }
-                    },
-                    singleLine = true,
-                    textStyle = MaterialTheme.typography.bodyLarge,
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Search
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onSearch = {
-                            if (state.status == SearchStatus.Ready) {
-                                viewModel.search()
-                                focusManager.clearFocus()
-                            }
-                        }
-                    )
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
+                ) {
+                    SearchType.entries.forEachIndexed { index, type ->
+                        val isSelected = state.searchType == type
 
-                IconButton(
+                        OutlinedToggleButton(
+                            checked = isSelected,
+                            onCheckedChange = {
+                                if (!isSelected) {
+                                    viewModel.onSearchTypeChange(type)
+                                    focusManager.clearFocus()
+                                }
+                            },
+                            modifier = Modifier.semantics { role = Role.RadioButton },
+                            colors = ToggleButtonDefaults.outlinedToggleButtonColors(
+                                checkedContainerColor = MaterialTheme.colorScheme.primary
+                            ),
+                            shapes = if (index == 0) {
+                                ButtonGroupDefaults.connectedLeadingButtonShapes()
+                            } else {
+                                ButtonGroupDefaults.connectedTrailingButtonShapes()
+                            }
+                        ) {
+                            Text(
+                                text = stringResource(type.title),
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                FilledTonalIconButton(
                     onClick = {
                         when {
                             !hasMediaPermission -> {
@@ -227,45 +263,13 @@ fun SearchScreen(
                     )
                 }
 
-                IconButton(
+                FilledTonalIconButton(
                     onClick = { showFilterBottomSheet = true }
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.FilterAlt,
                         contentDescription = stringResource(R.string.cd_filter_button)
                     )
-                }
-            }
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
-            ) {
-                SearchType.entries.forEachIndexed { index, type ->
-                    val isSelected = state.searchType == type
-
-                    OutlinedToggleButton(
-                        checked = isSelected,
-                        onCheckedChange = {
-                            if (!isSelected) {
-                                viewModel.onSearchTypeChange(type)
-                                focusManager.clearFocus()
-                            }
-                        },
-                        modifier = Modifier.semantics { role = Role.RadioButton },
-                        colors = ToggleButtonDefaults.outlinedToggleButtonColors(
-                            checkedContainerColor = MaterialTheme.colorScheme.primary
-                        ),
-                        shapes = if (index == 0) {
-                            ButtonGroupDefaults.connectedLeadingButtonShapes()
-                        } else {
-                            ButtonGroupDefaults.connectedTrailingButtonShapes()
-                        }
-                    ) {
-                        Text(
-                            text = stringResource(type.title),
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                    }
                 }
             }
         }
