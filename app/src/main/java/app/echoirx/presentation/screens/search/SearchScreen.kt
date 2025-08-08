@@ -5,6 +5,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,7 +26,6 @@ import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -67,6 +67,7 @@ import app.echoirx.domain.model.SearchResult
 import app.echoirx.presentation.components.EmptyStateMessage
 import app.echoirx.presentation.components.TrackBottomSheet
 import app.echoirx.presentation.components.permission.PermissionBottomSheet
+import app.echoirx.presentation.components.preferences.PreferencePosition
 import app.echoirx.presentation.navigation.NavConstants
 import app.echoirx.presentation.navigation.Route
 import app.echoirx.presentation.screens.search.components.FilterBottomSheet
@@ -269,10 +270,6 @@ fun SearchScreen(
             }
         }
 
-        HorizontalDivider(
-            modifier = Modifier.padding(horizontal = 8.dp),
-        )
-
         if (state.query.isNotEmpty() && state.status == SearchStatus.Ready && state.suggestedQueries.isNotEmpty()) {
             SearchSuggestionsSection(
                 suggestions = state.suggestedQueries,
@@ -333,14 +330,26 @@ fun SearchScreen(
                 SearchStatus.Success -> {
                     if (state.filteredResults.isNotEmpty()) {
                         LazyColumn(
-                            state = lazyListState
+                            state = lazyListState,
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                            contentPadding = PaddingValues(bottom = 8.dp)
                         ) {
                             itemsIndexed(
                                 items = state.filteredResults,
                                 key = { index, result -> "search_result_${result.id}_$index" }
                             ) { index, result ->
+                                val position = when {
+                                    state.filteredResults.size == 1 -> PreferencePosition.Single
+                                    index == 0 -> PreferencePosition.Top
+                                    index == state.filteredResults.size - 1 -> PreferencePosition.Bottom
+                                    else -> PreferencePosition.Middle
+                                }
+
                                 SearchResultItem(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
                                     result = result,
+                                    position = position,
                                     onClick = {
                                         if (state.searchType == SearchType.TRACKS) {
                                             selectedTrack = result
