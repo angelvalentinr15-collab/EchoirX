@@ -2,6 +2,7 @@ package app.echoirx.presentation.screens.search.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import app.echoirx.R
 import app.echoirx.domain.model.SearchHistoryItem
 import app.echoirx.presentation.components.EmptyStateMessage
+import app.echoirx.presentation.components.preferences.PreferencePosition
 
 @Composable
 fun SearchHistorySection(
@@ -40,13 +42,17 @@ fun SearchHistorySection(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .padding(
+                        start = 24.dp,
+                        end = 16.dp
+                    ),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = stringResource(R.string.title_recent_searches),
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary
                 )
 
                 TextButton(
@@ -55,18 +61,30 @@ fun SearchHistorySection(
                     Text(
                         text = stringResource(R.string.action_clear_all),
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
 
-            LazyColumn {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+                contentPadding = PaddingValues(bottom = 8.dp)
+            ) {
                 itemsIndexed(
                     items = searchHistory,
                     key = { index, item -> "search_history_${item.id}_$index" }
                 ) { index, item ->
+                    val position = when {
+                        searchHistory.size == 1 -> PreferencePosition.Single
+                        index == 0 -> PreferencePosition.Top
+                        index == searchHistory.size - 1 -> PreferencePosition.Bottom
+                        else -> PreferencePosition.Middle
+                    }
+
                     SearchHistoryItem(
+                        modifier = Modifier.padding(horizontal = 16.dp),
                         item = item,
+                        position = position,
                         onClick = { onHistoryItemClick(item) },
                         onDelete = { onDeleteHistoryItem(item) }
                     )
