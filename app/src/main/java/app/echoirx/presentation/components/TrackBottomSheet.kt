@@ -14,6 +14,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -42,81 +43,92 @@ fun TrackBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
+        modifier = modifier,
         sheetState = sheetState,
-        modifier = modifier
+        shape = MaterialTheme.shapes.large
     ) {
-        Column(
+        Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+                .padding(horizontal = 16.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            shape = MaterialTheme.shapes.large
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
-                    TrackCover(
-                        url = track.cover?.replace("80x80", "160x160"),
-                        size = 72.dp
-                    )
-
-                    if (showPreviewButton) {
-                        PreviewButton(
-                            onPreviewClick = onPreviewClick,
-                            isPlaying = isPreviewPlaying,
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .offset(x = 8.dp, y = 8.dp)
-                                .size(32.dp)
-                        )
-                    }
-                }
-
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = track.title,
-                        style = MaterialTheme.typography.titleLarge,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-
-                    Text(
-                        text = track.artists.joinToString(", "),
-                        style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        if (track.explicit) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_explicit),
-                                contentDescription = stringResource(R.string.cd_explicit_content),
-                                modifier = Modifier.size(16.dp),
-                            )
-                        }
-                        Text(
-                            text = track.duration,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                }
-            }
-
             Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center
+                    ) {
+                        TrackCover(
+                            url = track.cover?.replace("80x80", "160x160"),
+                            size = 72.dp
+                        )
+
+                        if (showPreviewButton) {
+                            PreviewButton(
+                                onPreviewClick = onPreviewClick,
+                                isPlaying = isPreviewPlaying,
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .offset(x = 8.dp, y = 8.dp)
+                                    .size(32.dp)
+                            )
+                        }
+                    }
+
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = track.title,
+                            style = MaterialTheme.typography.titleLarge,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                        Text(
+                            text = track.artists.joinToString(", "),
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (track.formats?.let { "DOLBY_ATMOS" in it } == true) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_dolby),
+                                    contentDescription = stringResource(R.string.cd_dolby_atmos),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                            if (track.explicit) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_explicit),
+                                    contentDescription = stringResource(R.string.cd_explicit_content),
+                                    modifier = Modifier.size(16.dp),
+                                )
+                            }
+                            Text(
+                                text = track.duration,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    }
+                }
+
                 HorizontalDivider()
 
                 DownloadOptions(

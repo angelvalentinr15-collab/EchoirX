@@ -24,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -87,206 +88,215 @@ fun DownloadBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
+        modifier = modifier,
         sheetState = sheetState,
-        modifier = modifier
+        shape = MaterialTheme.shapes.large
     ) {
-        Column(
+        Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+                .padding(horizontal = 16.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            shape = MaterialTheme.shapes.large
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                TrackCover(
-                    url = download.searchResult.cover?.replace("80x80", "160x160"),
-                    size = 72.dp
-                )
-
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(
-                        text = download.searchResult.title,
-                        style = MaterialTheme.typography.titleLarge,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                    TrackCover(
+                        url = download.searchResult.cover?.replace("80x80", "160x160"),
+                        size = 72.dp
                     )
 
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        if (download.searchResult.explicit) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_explicit),
-                                contentDescription = stringResource(R.string.cd_explicit_content),
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-
                         Text(
-                            text = download.searchResult.artists.joinToString(", "),
-                            style = MaterialTheme.typography.bodyMedium,
+                            text = download.searchResult.title,
+                            style = MaterialTheme.typography.titleLarge,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-                    }
 
-                    val statusText = when (download.status) {
-                        DownloadStatus.COMPLETED -> if (fileExists) {
-                            stringResource(R.string.label_completed)
-                        } else {
-                            stringResource(R.string.label_file_missing)
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (download.searchResult.explicit) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_explicit),
+                                    contentDescription = stringResource(R.string.cd_explicit_content),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+
+                            Text(
+                                text = download.searchResult.artists.joinToString(", "),
+                                style = MaterialTheme.typography.bodyMedium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
                         }
 
-                        DownloadStatus.FAILED -> stringResource(R.string.label_failed)
-                        DownloadStatus.DELETED -> stringResource(R.string.label_deleted)
-                        else -> download.status.name
-                    }
+                        val statusText = when (download.status) {
+                            DownloadStatus.COMPLETED -> if (fileExists) {
+                                stringResource(R.string.label_completed)
+                            } else {
+                                stringResource(R.string.label_file_missing)
+                            }
 
-                    Text(
-                        text = statusText,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = when {
-                            download.status == DownloadStatus.COMPLETED && fileExists ->
-                                MaterialTheme.colorScheme.primary
-
-                            download.status == DownloadStatus.FAILED ||
-                                    download.status == DownloadStatus.DELETED ||
-                                    (download.status == DownloadStatus.COMPLETED && !fileExists) ->
-                                MaterialTheme.colorScheme.error
-
-                            else -> MaterialTheme.colorScheme.onSurfaceVariant
+                            DownloadStatus.FAILED -> stringResource(R.string.label_failed)
+                            DownloadStatus.DELETED -> stringResource(R.string.label_deleted)
+                            else -> download.status.name
                         }
-                    )
-                }
-            }
 
-            HorizontalDivider()
+                        Text(
+                            text = statusText,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = when {
+                                download.status == DownloadStatus.COMPLETED && fileExists ->
+                                    MaterialTheme.colorScheme.primary
 
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                val actions = buildList {
-                    if (shouldShowFileOptions) {
-                        add(
-                            ChipAction(
-                                label = stringResource(R.string.action_open_in_player),
-                                icon = Icons.Outlined.PlayArrow,
-                                contentDescription = stringResource(R.string.cd_play),
-                                onClick = onOpenFile
-                            )
-                        )
+                                download.status == DownloadStatus.FAILED ||
+                                        download.status == DownloadStatus.DELETED ||
+                                        (download.status == DownloadStatus.COMPLETED && !fileExists) ->
+                                    MaterialTheme.colorScheme.error
 
-                        add(
-                            ChipAction(
-                                label = stringResource(R.string.action_delete_file),
-                                icon = Icons.Outlined.Delete,
-                                contentDescription = stringResource(R.string.cd_delete),
-                                onClick = onDeleteFile
-                            )
-                        )
-
-                        add(
-                            ChipAction(
-                                label = stringResource(R.string.action_share),
-                                icon = Icons.Outlined.Share,
-                                contentDescription = stringResource(R.string.cd_share),
-                                onClick = onShareFile
-                            )
+                                else -> MaterialTheme.colorScheme.onSurfaceVariant
+                            }
                         )
                     }
-
-                    if (isFailed || isDeleted) {
-                        add(
-                            ChipAction(
-                                label = stringResource(R.string.action_retry_download),
-                                icon = Icons.Outlined.Refresh,
-                                contentDescription = stringResource(R.string.cd_retry),
-                                onClick = onRetryDownload
-                            )
-                        )
-                    }
-
-                    add(
-                        ChipAction(
-                            label = stringResource(R.string.action_delete_from_history),
-                            icon = painterResource(R.drawable.ic_delete_history),
-                            contentDescription = stringResource(R.string.cd_history),
-                            onClick = onDeleteFromHistory
-                        )
-                    )
                 }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                HorizontalDivider()
+
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
+                    val actions = buildList {
+                        if (shouldShowFileOptions) {
+                            add(
+                                ChipAction(
+                                    label = stringResource(R.string.action_open_in_player),
+                                    icon = Icons.Outlined.PlayArrow,
+                                    contentDescription = stringResource(R.string.cd_play),
+                                    onClick = onOpenFile
+                                )
+                            )
+
+                            add(
+                                ChipAction(
+                                    label = stringResource(R.string.action_delete_file),
+                                    icon = Icons.Outlined.Delete,
+                                    contentDescription = stringResource(R.string.cd_delete),
+                                    onClick = onDeleteFile
+                                )
+                            )
+
+                            add(
+                                ChipAction(
+                                    label = stringResource(R.string.action_share),
+                                    icon = Icons.Outlined.Share,
+                                    contentDescription = stringResource(R.string.cd_share),
+                                    onClick = onShareFile
+                                )
+                            )
+                        }
+
+                        if (isFailed || isDeleted) {
+                            add(
+                                ChipAction(
+                                    label = stringResource(R.string.action_retry_download),
+                                    icon = Icons.Outlined.Refresh,
+                                    contentDescription = stringResource(R.string.cd_retry),
+                                    onClick = onRetryDownload
+                                )
+                            )
+                        }
+
+                        add(
+                            ChipAction(
+                                label = stringResource(R.string.action_delete_from_history),
+                                icon = painterResource(R.drawable.ic_delete_history),
+                                contentDescription = stringResource(R.string.cd_history),
+                                onClick = onDeleteFromHistory
+                            )
+                        )
+                    }
+
                     Row(
-                        horizontalArrangement = Arrangement.Start,
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        actions.forEach { action ->
-                            if (action.icon != Icons.Outlined.PlayArrow || !shouldShowFileOptions) {
-                                FilledIconButton(
-                                    onClick = action.onClick,
-                                    colors = IconButtonDefaults.filledIconButtonColors(
-                                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                                    ),
-                                    shapes = IconButtonDefaults.shapes()
-                                ) {
-                                    when (action.icon) {
-                                        is ImageVector -> {
-                                            Icon(
-                                                imageVector = action.icon,
-                                                contentDescription = action.contentDescription,
-                                                modifier = Modifier.size(ButtonDefaults.MediumIconSize)
-                                            )
-                                        }
+                        Row(
+                            horizontalArrangement = Arrangement.Start,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            actions.forEach { action ->
+                                if (action.icon != Icons.Outlined.PlayArrow || !shouldShowFileOptions) {
+                                    FilledIconButton(
+                                        onClick = action.onClick,
+                                        colors = IconButtonDefaults.filledIconButtonColors(
+                                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                        ),
+                                        shapes = IconButtonDefaults.shapes()
+                                    ) {
+                                        when (action.icon) {
+                                            is ImageVector -> {
+                                                Icon(
+                                                    imageVector = action.icon,
+                                                    contentDescription = action.contentDescription,
+                                                    modifier = Modifier.size(ButtonDefaults.MediumIconSize)
+                                                )
+                                            }
 
-                                        is Painter -> {
-                                            Icon(
-                                                painter = action.icon,
-                                                contentDescription = action.contentDescription,
-                                                modifier = Modifier.size(ButtonDefaults.MediumIconSize)
-                                            )
+                                            is Painter -> {
+                                                Icon(
+                                                    painter = action.icon,
+                                                    contentDescription = action.contentDescription,
+                                                    modifier = Modifier.size(ButtonDefaults.MediumIconSize)
+                                                )
+                                            }
                                         }
                                     }
+                                    Spacer(modifier = Modifier.width(8.dp))
                                 }
-                                Spacer(modifier = Modifier.width(8.dp))
                             }
                         }
-                    }
 
-                    if (shouldShowFileOptions) {
-                        val openPlayerAction = actions.find { it.icon == Icons.Outlined.PlayArrow }
-                        if (openPlayerAction != null) {
-                            Button(
-                                onClick = openPlayerAction.onClick,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary
-                                ),
-                                shapes = ButtonDefaults.shapes()
-                            ) {
-                                Icon(
-                                    imageVector = openPlayerAction.icon as ImageVector,
-                                    contentDescription = openPlayerAction.contentDescription,
-                                    modifier = Modifier.size(ButtonDefaults.IconSize)
-                                )
-                                Text(
-                                    text = openPlayerAction.label,
-                                    style = MaterialTheme.typography.labelLarge,
-                                    modifier = Modifier.padding(start = 8.dp)
-                                )
+                        if (shouldShowFileOptions) {
+                            val openPlayerAction =
+                                actions.find { it.icon == Icons.Outlined.PlayArrow }
+                            if (openPlayerAction != null) {
+                                Button(
+                                    onClick = openPlayerAction.onClick,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary
+                                    ),
+                                    shapes = ButtonDefaults.shapes()
+                                ) {
+                                    Icon(
+                                        imageVector = openPlayerAction.icon as ImageVector,
+                                        contentDescription = openPlayerAction.contentDescription,
+                                        modifier = Modifier.size(ButtonDefaults.IconSize)
+                                    )
+                                    Text(
+                                        text = openPlayerAction.label,
+                                        style = MaterialTheme.typography.labelLarge,
+                                        modifier = Modifier.padding(start = 8.dp)
+                                    )
+                                }
                             }
                         }
                     }
