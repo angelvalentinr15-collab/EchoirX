@@ -11,17 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CloudQueue
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Dns
-import androidx.compose.material.icons.outlined.Folder
-import androidx.compose.material.icons.outlined.History
-import androidx.compose.material.icons.outlined.Image
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Lyrics
-import androidx.compose.material.icons.outlined.RestartAlt
-import androidx.compose.material.icons.outlined.TextFormat
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -160,7 +149,6 @@ fun SettingsScreen(
             PreferenceItem(
                 title = stringResource(R.string.title_server),
                 subtitle = stringResource(R.string.msg_server_subtitle),
-                icon = Icons.Outlined.CloudQueue,
                 onClick = { showServerSheet = true },
                 position = PreferencePosition.Top
             )
@@ -170,7 +158,6 @@ fun SettingsScreen(
             PreferenceItem(
                 title = stringResource(R.string.title_use_cloudflare_dns),
                 subtitle = stringResource(R.string.subtitle_use_cloudflare_dns),
-                icon = Icons.Outlined.Dns,
                 position = PreferencePosition.Bottom,
                 trailingContent = {
                     ThumbSwitch(
@@ -189,7 +176,6 @@ fun SettingsScreen(
             PreferenceItem(
                 title = stringResource(R.string.title_download_location),
                 subtitle = state.outputDirectory.toDisplayPath(context),
-                icon = Icons.Outlined.Folder,
                 onClick = {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                         dirPicker.launch(null)
@@ -205,7 +191,6 @@ fun SettingsScreen(
             PreferenceItem(
                 title = stringResource(R.string.title_file_naming_format),
                 subtitle = stringResource(state.fileNamingFormat.displayNameResId),
-                icon = Icons.Outlined.TextFormat,
                 onClick = { showFormatSheet = true },
                 position = PreferencePosition.Middle
             )
@@ -215,7 +200,6 @@ fun SettingsScreen(
             PreferenceItem(
                 title = stringResource(R.string.title_save_cover_art),
                 subtitle = stringResource(R.string.subtitle_save_cover_art),
-                icon = Icons.Outlined.Image,
                 position = PreferencePosition.Middle,
                 trailingContent = {
                     ThumbSwitch(
@@ -230,7 +214,6 @@ fun SettingsScreen(
             PreferenceItem(
                 title = stringResource(R.string.title_save_lyrics),
                 subtitle = stringResource(R.string.subtitle_save_lyrics),
-                icon = Icons.Outlined.Lyrics,
                 position = PreferencePosition.Bottom,
                 trailingContent = {
                     ThumbSwitch(
@@ -249,7 +232,6 @@ fun SettingsScreen(
             PreferenceItem(
                 title = stringResource(R.string.title_clear_search_history),
                 subtitle = stringResource(R.string.msg_clear_search_history_subtitle),
-                icon = Icons.Outlined.History,
                 onClick = { showClearHistorySheet = true },
                 position = PreferencePosition.Top
             )
@@ -259,7 +241,6 @@ fun SettingsScreen(
             PreferenceItem(
                 title = stringResource(R.string.title_clear_data),
                 subtitle = stringResource(R.string.msg_clear_data_subtitle),
-                icon = Icons.Outlined.Delete,
                 onClick = { showClearDataSheet = true },
                 position = PreferencePosition.Middle
             )
@@ -269,7 +250,6 @@ fun SettingsScreen(
             PreferenceItem(
                 title = stringResource(R.string.title_reset_settings),
                 subtitle = stringResource(R.string.msg_reset_settings_subtitle),
-                icon = Icons.Outlined.RestartAlt,
                 onClick = { showResetSheet = true },
                 position = PreferencePosition.Bottom
             )
@@ -283,7 +263,6 @@ fun SettingsScreen(
             PreferenceItem(
                 title = stringResource(R.string.app_name),
                 subtitle = stringResource(R.string.msg_about_version, BuildConfig.VERSION_NAME),
-                icon = Icons.Outlined.Info,
                 position = PreferencePosition.Single,
             )
         }
