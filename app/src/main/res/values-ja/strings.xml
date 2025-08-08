@@ -175,6 +175,9 @@
     <string name="quality_desc_aac_320">320 KB/s の最高音質な非可逆圧縮</string>
     <string name="quality_desc_aac_96">96 KB/s の標準音質な非可逆圧縮</string>
 
+    <!-- Quality Warnings -->
+    <string name="quality_warning_aac_320">320をダウンロード中、サービスは様々な要因により時々96 kbpsを配信する場合があります</string>
+
     <!-- File Naming Format -->
     <string name="file_format_artist_title_display">アーティスト - タイトル</string>
     <string name="file_format_title_artist_display">タイトル - アーティスト</string>

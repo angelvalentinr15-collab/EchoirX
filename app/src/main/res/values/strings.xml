@@ -181,6 +181,9 @@
     <string name="quality_desc_aac_320">High quality lossy compression at 320 KB/s</string>
     <string name="quality_desc_aac_96">Standard quality lossy compression at 96 KB/s</string>
 
+    <!-- Quality Warnings -->
+    <string name="quality_warning_aac_320">While downloading 320, service might occasionally deliver 96 kbps based on various factors</string>
+
     <!-- File Naming Format -->
     <string name="file_format_artist_title_display">Artist - Title</string>
     <string name="file_format_title_artist_display">Title - Artist</string>

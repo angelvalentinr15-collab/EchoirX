@@ -175,6 +175,9 @@
     <string name="quality_desc_aac_320">ضغط بجودة عالية بسرعة 320 كيلوبت/ثانية</string>
     <string name="quality_desc_aac_96">ضغط بجودة قياسية بسرعة 96 كيلوبت/ثانية</string>
 
+    <!-- Quality Warnings -->
+    <string name="quality_warning_aac_320">أثناء تنزيل 320، قد تقدم الخدمة أحياناً 96 كيلوبت/ثانية بناءً على عوامل مختلفة</string>
+
     <!-- تنسيقات تسمية الملفات -->
     <string name="file_format_artist_title_display">الفنان - العنوان</string>
     <string name="file_format_title_artist_display">العنوان - الفنان</string>
