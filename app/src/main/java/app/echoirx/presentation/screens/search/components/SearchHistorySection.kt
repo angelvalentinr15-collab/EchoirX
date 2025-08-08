@@ -75,34 +75,3 @@ fun SearchHistorySection(
         }
     }
 }
-
-@Composable
-fun SearchSuggestionsSection(
-    suggestions: List<SearchHistoryItem>,
-    onSuggestionClick: (SearchHistoryItem) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    if (suggestions.isEmpty()) return
-
-    Column(
-        modifier = modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = stringResource(R.string.title_suggestions),
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        )
-
-        LazyColumn {
-            itemsIndexed(
-                items = suggestions,
-                key = { index, item -> "suggestion_${item.id}_$index" }
-            ) { index, item ->
-                SearchSuggestionItem(
-                    item = item,
-                    onClick = { onSuggestionClick(item) }
-                )
-            }
-        }
-    }
-}

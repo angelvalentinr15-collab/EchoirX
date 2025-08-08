@@ -18,12 +18,9 @@ import app.echoirx.domain.usecase.SearchUseCase
 import app.echoirx.domain.usecase.SettingsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -50,7 +47,6 @@ class SearchViewModel @Inject constructor(
 
     init {
         loadSearchHistory()
-        setupQueryListener()
         checkMediaPermission()
         initializeMediaSession()
     }
@@ -109,27 +105,6 @@ class SearchViewModel @Inject constructor(
                 _state.update { it.copy(searchHistory = history) }
             }
         }
-    }
-
-    @OptIn(FlowPreview::class)
-    private fun setupQueryListener() {
-        viewModelScope.launch {
-            _state
-                .debounce(300)
-                .distinctUntilChanged { old, new -> old.query == new.query }
-                .collect { state ->
-                    if (state.query.isNotBlank() && state.query.length >= 2) {
-                        updateSuggestions(state.query)
-                    } else {
-                        _state.update { it.copy(suggestedQueries = emptyList()) }
-                    }
-                }
-        }
-    }
-
-    private suspend fun updateSuggestions(query: String) {
-        val suggestions = searchHistoryRepository.searchHistory(query)
-        _state.update { it.copy(suggestedQueries = suggestions) }
     }
 
     fun onQueryChange(query: String) {

@@ -75,7 +75,6 @@ import app.echoirx.presentation.navigation.Route
 import app.echoirx.presentation.screens.search.components.FilterBottomSheet
 import app.echoirx.presentation.screens.search.components.SearchHistorySection
 import app.echoirx.presentation.screens.search.components.SearchResultItem
-import app.echoirx.presentation.screens.search.components.SearchSuggestionsSection
 import kotlinx.coroutines.flow.filter
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
@@ -274,17 +273,24 @@ fun SearchScreen(
             }
         }
 
-        if (state.query.isNotEmpty() && state.status == SearchStatus.Ready && state.suggestedQueries.isNotEmpty()) {
-            SearchSuggestionsSection(
-                suggestions = state.suggestedQueries,
-                onSuggestionClick = { item ->
-                    viewModel.useHistoryItem(item)
-                    focusManager.clearFocus()
-                }
-            )
-        } else {
-            when (state.status) {
-                SearchStatus.Empty -> {
+        when (state.status) {
+            SearchStatus.Empty -> {
+                SearchHistorySection(
+                    searchHistory = state.searchHistory,
+                    onHistoryItemClick = { item ->
+                        viewModel.useHistoryItem(item)
+                    },
+                    onDeleteHistoryItem = { item ->
+                        viewModel.deleteHistoryItem(item)
+                    },
+                    onClearHistory = {
+                        viewModel.clearSearchHistory()
+                    }
+                )
+            }
+
+            SearchStatus.Ready -> {
+                if (state.isShowingHistory) {
                     SearchHistorySection(
                         searchHistory = state.searchHistory,
                         onHistoryItemClick = { item ->
@@ -297,119 +303,102 @@ fun SearchScreen(
                             viewModel.clearSearchHistory()
                         }
                     )
-                }
-
-                SearchStatus.Ready -> {
-                    if (state.isShowingHistory) {
-                        SearchHistorySection(
-                            searchHistory = state.searchHistory,
-                            onHistoryItemClick = { item ->
-                                viewModel.useHistoryItem(item)
-                            },
-                            onDeleteHistoryItem = { item ->
-                                viewModel.deleteHistoryItem(item)
-                            },
-                            onClearHistory = {
-                                viewModel.clearSearchHistory()
-                            }
-                        )
-                    } else {
-                        EmptyStateMessage(
-                            title = stringResource(R.string.msg_search_empty),
-                            description = stringResource(R.string.msg_search_empty_desc),
-                            painter = painterResource(R.drawable.ic_search)
-                        )
-                    }
-                }
-
-                SearchStatus.Loading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        ContainedLoadingIndicator()
-                    }
-                }
-
-                SearchStatus.Success -> {
-                    if (state.filteredResults.isNotEmpty()) {
-                        LazyColumn(
-                            state = lazyListState,
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(2.dp),
-                            contentPadding = PaddingValues(bottom = 8.dp)
-                        ) {
-                            itemsIndexed(
-                                items = state.filteredResults,
-                                key = { index, result -> "search_result_${result.id}_$index" }
-                            ) { index, result ->
-                                val position = when {
-                                    state.filteredResults.size == 1 -> PreferencePosition.Single
-                                    index == 0 -> PreferencePosition.Top
-                                    index == state.filteredResults.size - 1 -> PreferencePosition.Bottom
-                                    else -> PreferencePosition.Middle
-                                }
-
-                                SearchResultItem(
-                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                    result = result,
-                                    position = position,
-                                    onClick = {
-                                        if (state.searchType == SearchType.TRACKS) {
-                                            selectedTrack = result
-                                            showBottomSheet = true
-                                        } else {
-                                            navController.currentBackStackEntry
-                                                ?.savedStateHandle
-                                                ?.set("result", result)
-                                            navController.navigate(
-                                                Route.Search.Details().createPath(
-                                                    type = state.searchType.name,
-                                                    id = result.id
-                                                )
-                                            )
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                    } else {
-                        EmptyStateMessage(
-                            title = stringResource(R.string.msg_search_no_results_filters),
-                            description = stringResource(R.string.msg_search_no_results_filters_desc),
-                            painter = painterResource(R.drawable.ic_search)
-                        )
-                    }
-                }
-
-                SearchStatus.NoResults -> {
+                } else {
                     EmptyStateMessage(
-                        title = stringResource(R.string.msg_search_no_results),
-                        description = stringResource(R.string.msg_search_no_results_desc),
+                        title = stringResource(R.string.msg_search_empty),
+                        description = stringResource(R.string.msg_search_empty_desc),
                         painter = painterResource(R.drawable.ic_search)
                     )
                 }
+            }
 
-                SearchStatus.Error -> {
-                    Box(
+            SearchStatus.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ContainedLoadingIndicator()
+                }
+            }
+
+            SearchStatus.Success -> {
+                if (state.filteredResults.isNotEmpty()) {
+                    LazyColumn(
+                        state = lazyListState,
                         modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                        contentPadding = PaddingValues(bottom = 8.dp)
                     ) {
-                        if (state.showServerRecommendation) {
-                            EmptyStateMessage(
-                                title = stringResource(R.string.title_server_recommendation),
-                                description = stringResource(R.string.msg_server_recommendation),
-                                icon = Icons.Outlined.CloudOff
-                            )
-                        } else {
-                            EmptyStateMessage(
-                                title = stringResource(R.string.msg_unknown_error),
-                                description = state.error.formatErrorMessage(
-                                    defaultError = stringResource(R.string.msg_unknown_error)
-                                ),
-                                icon = Icons.Outlined.Error,
+                        itemsIndexed(
+                            items = state.filteredResults,
+                            key = { index, result -> "search_result_${result.id}_$index" }
+                        ) { index, result ->
+                            val position = when {
+                                state.filteredResults.size == 1 -> PreferencePosition.Single
+                                index == 0 -> PreferencePosition.Top
+                                index == state.filteredResults.size - 1 -> PreferencePosition.Bottom
+                                else -> PreferencePosition.Middle
+                            }
+
+                            SearchResultItem(
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                result = result,
+                                position = position,
+                                onClick = {
+                                    if (state.searchType == SearchType.TRACKS) {
+                                        selectedTrack = result
+                                        showBottomSheet = true
+                                    } else {
+                                        navController.currentBackStackEntry
+                                            ?.savedStateHandle
+                                            ?.set("result", result)
+                                        navController.navigate(
+                                            Route.Search.Details().createPath(
+                                                type = state.searchType.name,
+                                                id = result.id
+                                            )
+                                        )
+                                    }
+                                }
                             )
                         }
+                    }
+                } else {
+                    EmptyStateMessage(
+                        title = stringResource(R.string.msg_search_no_results_filters),
+                        description = stringResource(R.string.msg_search_no_results_filters_desc),
+                        painter = painterResource(R.drawable.ic_search)
+                    )
+                }
+            }
+
+            SearchStatus.NoResults -> {
+                EmptyStateMessage(
+                    title = stringResource(R.string.msg_search_no_results),
+                    description = stringResource(R.string.msg_search_no_results_desc),
+                    painter = painterResource(R.drawable.ic_search)
+                )
+            }
+
+            SearchStatus.Error -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (state.showServerRecommendation) {
+                        EmptyStateMessage(
+                            title = stringResource(R.string.title_server_recommendation),
+                            description = stringResource(R.string.msg_server_recommendation),
+                            icon = Icons.Outlined.CloudOff
+                        )
+                    } else {
+                        EmptyStateMessage(
+                            title = stringResource(R.string.msg_unknown_error),
+                            description = state.error.formatErrorMessage(
+                                defaultError = stringResource(R.string.msg_unknown_error)
+                            ),
+                            icon = Icons.Outlined.Error,
+                        )
                     }
                 }
             }

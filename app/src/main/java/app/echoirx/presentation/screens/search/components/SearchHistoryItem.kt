@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.History
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,7 +39,7 @@ fun SearchHistoryItem(
 
     val searchType = try {
         SearchType.valueOf(item.type)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         SearchType.TRACKS
     }
 
@@ -90,55 +89,6 @@ fun SearchHistoryItem(
                     modifier = Modifier.size(18.dp)
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun SearchSuggestionItem(
-    item: SearchHistoryItem,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Search,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Text(
-                text = item.query,
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 16.dp)
-            )
-
-            val searchType = try {
-                SearchType.valueOf(item.type)
-            } catch (e: Exception) {
-                SearchType.TRACKS
-            }
-
-            Text(
-                text = stringResource(searchType.title),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }
