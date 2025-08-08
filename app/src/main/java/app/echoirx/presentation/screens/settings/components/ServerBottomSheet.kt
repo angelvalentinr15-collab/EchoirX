@@ -1,11 +1,13 @@
 package app.echoirx.presentation.screens.settings.components
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
@@ -23,6 +25,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -37,11 +40,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.echoirx.R
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3ExpressiveApi::class,
+    ExperimentalLayoutApi::class
+)
 @Composable
 fun ServerBottomSheet(
     currentServer: String,
@@ -57,6 +63,7 @@ fun ServerBottomSheet(
     var errorMessage by remember { mutableStateOf("") }
     val defaultServerUrl = "https://example.com/api/echoir"
     val context = LocalContext.current
+    val isKeyboardOpen = WindowInsets.isImeVisible
 
     fun cleanUrl(url: String): String {
         return url.trim().replace("\\s+".toRegex(), "")
@@ -76,109 +83,110 @@ fun ServerBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
+        modifier = modifier,
         sheetState = sheetState,
-        modifier = modifier
+        shape = MaterialTheme.shapes.large
     ) {
-        Column(
+        Surface(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
+                .apply {
+                    if (isKeyboardOpen) padding(bottom = 16.dp) else this
+                },
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            shape = MaterialTheme.shapes.large
         ) {
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-                contentAlignment = Alignment.Center
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
                     text = stringResource(R.string.title_server),
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = TextAlign.Center
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
-            }
 
-            OutlinedTextField(
-                value = serverUrl,
-                onValueChange = {
-                    serverUrl = it
-                    showError = false
-                },
-                label = { Text(stringResource(R.string.label_server_url)) },
-                placeholder = { Text(defaultServerUrl) },
-                singleLine = true,
-                isError = showError,
-                supportingText = {
-                    if (showError) {
-                        Text(
-                            text = errorMessage,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    } else if (serverUrl.contains(" ")) {
-                        Text(
-                            text = stringResource(R.string.msg_spaces_will_be_removed),
-                        )
-                    }
-                },
-                trailingIcon = {
-                    if (serverUrl.isNotEmpty()) {
-                        IconButton(
-                            onClick = {
-                                serverUrl = ""
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Clear,
-                                contentDescription = stringResource(R.string.cd_clear)
+                OutlinedTextField(
+                    value = serverUrl,
+                    onValueChange = {
+                        serverUrl = it
+                        showError = false
+                    },
+                    label = { Text(stringResource(R.string.label_server_url)) },
+                    placeholder = { Text(defaultServerUrl) },
+                    singleLine = true,
+                    isError = showError,
+                    supportingText = {
+                        if (showError) {
+                            Text(
+                                text = errorMessage,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        } else if (serverUrl.contains(" ")) {
+                            Text(
+                                text = stringResource(R.string.msg_spaces_will_be_removed),
                             )
                         }
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Uri,
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = { validateAndSave() }
-                )
-            )
-
-            HorizontalDivider()
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                FilledTonalButton(
-                    onClick = {
-                        serverUrl = defaultServerUrl
-                        showError = false
-                        onReset()
                     },
-                    shapes = ButtonDefaults.shapes()
-                ) {
-                    Text(
-                        text = stringResource(R.string.action_reset)
+                    trailingIcon = {
+                        if (serverUrl.isNotEmpty()) {
+                            IconButton(
+                                onClick = {
+                                    serverUrl = ""
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Clear,
+                                    contentDescription = stringResource(R.string.cd_clear)
+                                )
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Uri,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = { validateAndSave() }
                     )
-                }
-
-                Spacer(
-                    modifier = Modifier.width(8.dp)
                 )
 
-                Button(
-                    onClick = { validateAndSave() },
-                    shapes = ButtonDefaults.shapes()
+                HorizontalDivider()
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = stringResource(R.string.action_save)
+                    FilledTonalButton(
+                        onClick = {
+                            serverUrl = defaultServerUrl
+                            showError = false
+                            onReset()
+                        },
+                        shapes = ButtonDefaults.shapes()
+                    ) {
+                        Text(
+                            text = stringResource(R.string.action_reset)
+                        )
+                    }
+
+                    Spacer(
+                        modifier = Modifier.width(8.dp)
                     )
+
+                    Button(
+                        onClick = { validateAndSave() },
+                        shapes = ButtonDefaults.shapes()
+                    ) {
+                        Text(
+                            text = stringResource(R.string.action_save)
+                        )
+                    }
                 }
             }
         }
