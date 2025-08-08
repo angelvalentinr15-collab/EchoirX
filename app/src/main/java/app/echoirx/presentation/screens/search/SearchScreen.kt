@@ -11,15 +11,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Album
 import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.Error
 import androidx.compose.material.icons.outlined.FilterAlt
+import androidx.compose.material.icons.outlined.MusicNote
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,11 +32,11 @@ import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedToggleButton
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -199,7 +203,7 @@ fun SearchScreen(
                     SearchType.entries.forEachIndexed { index, type ->
                         val isSelected = state.searchType == type
 
-                        OutlinedToggleButton(
+                        ToggleButton(
                             checked = isSelected,
                             onCheckedChange = {
                                 if (!isSelected) {
@@ -208,8 +212,11 @@ fun SearchScreen(
                                 }
                             },
                             modifier = Modifier.semantics { role = Role.RadioButton },
-                            colors = ToggleButtonDefaults.outlinedToggleButtonColors(
-                                checkedContainerColor = MaterialTheme.colorScheme.primary
+                            colors = ToggleButtonDefaults.toggleButtonColors(
+                                checkedContainerColor = MaterialTheme.colorScheme.primary,
+                                checkedContentColor = MaterialTheme.colorScheme.onPrimary,
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                             ),
                             shapes = if (index == 0) {
                                 ButtonGroupDefaults.connectedLeadingButtonShapes()
@@ -217,10 +224,23 @@ fun SearchScreen(
                                 ButtonGroupDefaults.connectedTrailingButtonShapes()
                             }
                         ) {
-                            Text(
-                                text = stringResource(type.title),
-                                style = MaterialTheme.typography.labelLarge
-                            )
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = when (type) {
+                                        SearchType.TRACKS -> Icons.Outlined.MusicNote
+                                        SearchType.ALBUMS -> Icons.Outlined.Album
+                                    },
+                                    contentDescription = null,
+                                    modifier = Modifier.size(ButtonDefaults.IconSize)
+                                )
+                                Text(
+                                    text = stringResource(type.title),
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                            }
                         }
                     }
                 }
