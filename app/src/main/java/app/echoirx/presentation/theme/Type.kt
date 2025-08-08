@@ -9,7 +9,7 @@ import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.unit.sp
 import app.echoirx.R
 
-private val fontFamily = GoogleFont("Source Sans Pro").let { font ->
+private val fontFamily = GoogleFont("Cabin").let { font ->
     FontFamily(
         listOf(
             FontWeight.Light,
