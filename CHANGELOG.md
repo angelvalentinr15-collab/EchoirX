@@ -1,6 +1,6 @@
 ### Changelog
 
-#### Version 1.9
+#### Version 2.0
 **Release Date:** Aug 09, 2025
 
 ---
@@ -9,6 +9,8 @@
 - Misc fixes (tidal url search, music detection and more)
 - Added back AAC 320 quality warning
 - Gradle updates
+- Fixed Search query issue (Space not being applied)
+- Added Download Cancellation option & improved background download
 
 > [!WARNING]
 > **Potential Download Limitations**
