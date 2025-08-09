@@ -136,7 +136,7 @@ fun DownloadItem(
                 }
 
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                    horizontalAlignment = Alignment.End,
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     when (download.status) {
