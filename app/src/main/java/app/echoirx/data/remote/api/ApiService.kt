@@ -26,10 +26,15 @@ class ApiService @Inject constructor(
     suspend fun search(query: String, type: String): List<SearchResultDto> =
         withContext(Dispatchers.IO) {
             val baseUrl = getBaseUrl()
+            val endpoint = when (type.lowercase()) {
+                "tracks" -> "$baseUrl/search/tracks"
+                "albums" -> "$baseUrl/search/albums"
+                else -> "$baseUrl/search/tracks"
+            }
 
-            client.get("$baseUrl/search") {
+            client.get(endpoint) {
                 parameter("query", query)
-                parameter("type", type)
+                parameter("limit", 50)
             }.body()
         }
 
