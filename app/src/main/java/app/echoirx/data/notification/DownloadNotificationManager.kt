@@ -3,6 +3,8 @@ package app.echoirx.data.notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.work.ForegroundInfo
 import app.echoirx.R
@@ -36,6 +38,7 @@ class DownloadNotificationManager @Inject constructor(
             NotificationManager.IMPORTANCE_LOW
         ).apply {
             description = context.getString(R.string.notification_channel_desc)
+            setShowBadge(false)
         }
         notificationManager.createNotificationChannel(channel)
     }
@@ -55,6 +58,8 @@ class DownloadNotificationManager @Inject constructor(
         setCategory(category)
         setOngoing(ongoing)
         setAutoCancel(autoCancel)
+        setOnlyAlertOnce(true)
+        setSilent(true)
         contentText?.let { setContentText(it) }
         progress?.let { setProgress(100, it, indeterminate) }
     }.build()
@@ -73,8 +78,16 @@ class DownloadNotificationManager @Inject constructor(
             indeterminate = indeterminate,
             ongoing = true
         )
+
+        val notificationId = downloadId.hashCode()
+        notificationManager.notify(notificationId, notification)
         updateSummaryNotification()
-        return ForegroundInfo(downloadId.hashCode(), notification)
+
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            ForegroundInfo(notificationId, notification)
+        } else {
+            ForegroundInfo(notificationId, notification, FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        }
     }
 
     fun updateDownloadProgress(
@@ -83,45 +96,49 @@ class DownloadNotificationManager @Inject constructor(
         progress: Int,
         indeterminate: Boolean
     ) {
-        notificationManager.notify(
-            downloadId.hashCode(),
-            buildNotification(
-                title = title,
-                progress = progress,
-                indeterminate = indeterminate,
-                ongoing = true
-            )
+        val notification = buildNotification(
+            title = title,
+            progress = progress,
+            indeterminate = indeterminate,
+            ongoing = true
         )
+
+        val notificationId = downloadId.hashCode()
+        notificationManager.notify(notificationId, notification)
         updateSummaryNotification()
     }
 
     fun showCompletionNotification(downloadId: String, title: String) {
         activeDownloads.remove(downloadId)
 
-        notificationManager.notify(
-            downloadId.hashCode(),
-            buildNotification(
-                title = context.getString(R.string.notification_complete),
-                contentText = title,
-                autoCancel = true,
-                category = NotificationCompat.CATEGORY_STATUS
-            )
+        val notification = buildNotification(
+            title = context.getString(R.string.notification_complete),
+            contentText = title,
+            autoCancel = true,
+            category = NotificationCompat.CATEGORY_STATUS
         )
+
+        notificationManager.notify(downloadId.hashCode(), notification)
         updateSummaryNotification()
     }
 
     fun showErrorNotification(downloadId: String, title: String) {
         activeDownloads.remove(downloadId)
 
-        notificationManager.notify(
-            downloadId.hashCode(),
-            buildNotification(
-                title = context.getString(R.string.notification_failed),
-                contentText = title,
-                autoCancel = true,
-                category = NotificationCompat.CATEGORY_ERROR
-            )
+        val notification = buildNotification(
+            title = context.getString(R.string.notification_failed),
+            contentText = title,
+            autoCancel = true,
+            category = NotificationCompat.CATEGORY_ERROR
         )
+
+        notificationManager.notify(downloadId.hashCode(), notification)
+        updateSummaryNotification()
+    }
+
+    fun cancelDownloadNotification(downloadId: String) {
+        activeDownloads.remove(downloadId)
+        notificationManager.cancel(downloadId.hashCode())
         updateSummaryNotification()
     }
 
@@ -129,15 +146,18 @@ class DownloadNotificationManager @Inject constructor(
         if (activeDownloads.isEmpty()) {
             notificationManager.cancel(SUMMARY_ID)
         } else {
-            notificationManager.notify(
-                SUMMARY_ID,
-                buildNotification(
-                    title = context.getString(R.string.notification_progress),
-                    ongoing = true
-                ).apply {
-                    flags = flags or NotificationCompat.FLAG_GROUP_SUMMARY
-                }
-            )
+            val summaryNotification = buildNotification(
+                title = context.getString(R.string.notification_progress),
+                contentText = context.getString(
+                    R.string.notification_downloads_count,
+                    activeDownloads.size
+                ),
+                ongoing = true
+            ).apply {
+                flags = flags or NotificationCompat.FLAG_GROUP_SUMMARY
+            }
+
+            notificationManager.notify(SUMMARY_ID, summaryNotification)
         }
     }
 }

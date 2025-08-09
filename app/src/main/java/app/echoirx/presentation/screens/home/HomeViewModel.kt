@@ -7,6 +7,7 @@ import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkManager
 import app.echoirx.domain.model.Download
 import app.echoirx.domain.model.DownloadRequest
 import app.echoirx.domain.model.DownloadStatus
@@ -29,6 +30,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val downloadRepository: DownloadRepository,
     private val processDownloadUseCase: ProcessDownloadUseCase,
+    private val workManager: WorkManager,
     @param:ApplicationContext private val context: Context
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
@@ -55,6 +57,18 @@ class HomeViewModel @Inject constructor(
                 .collect { newState ->
                     _state.update { newState }
                 }
+        }
+    }
+
+    fun cancelDownload(download: Download): Boolean {
+        return try {
+            viewModelScope.launch {
+                workManager.cancelUniqueWork("download_${download.downloadId}")
+                downloadRepository.updateDownloadStatus(download.downloadId, DownloadStatus.FAILED)
+            }
+            true
+        } catch (_: Exception) {
+            false
         }
     }
 

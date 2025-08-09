@@ -124,6 +124,7 @@
     <string name="msg_clear_search_history_subtitle">Remove all your saved searches</string>
     <string name="msg_no_media_playing">No media currently playing</string>
     <string name="msg_searching_current_media">Searching for: %s</string>
+    <string name="msg_download_cancelled">Download cancelled</string>
 
     <!-- Notifications -->
     <string name="notification_channel_name">Downloads</string>
@@ -133,6 +134,7 @@
     <string name="notification_complete">Download Complete</string>
     <string name="notification_failed">Download Failed</string>
     <string name="notification_progress">Downloads in progress</string>
+    <string name="notification_downloads_count">%d downloads in progress</string>
 
     <!-- Dialogs -->
     <string name="dialog_reset_settings_title">Reset Settings?</string>

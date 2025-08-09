@@ -118,6 +118,7 @@
     <string name="msg_clear_search_history_subtitle">إزالة جميع عمليات البحث المحفوظة</string>
     <string name="msg_no_media_playing">لا يتم تشغيل أي وسائط حاليًا</string>
     <string name="msg_searching_current_media">جارٍ البحث عن: %s</string>
+    <string name="msg_download_cancelled">تم إلغاء التنزيل</string>
 
     <!-- الإشعارات -->
     <string name="notification_channel_name">التنزيلات</string>
@@ -127,6 +128,7 @@
     <string name="notification_complete">اكتمل التنزيل</string>
     <string name="notification_failed">فشل التنزيل</string>
     <string name="notification_progress">تنزيلات قيد التنفيذ</string>
+    <string name="notification_downloads_count">%d تنزيلات قيد التقدم</string>
 
     <!-- الحوارات -->
     <string name="dialog_reset_settings_title">إعادة ضبط الإعدادات؟</string>

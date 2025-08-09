@@ -118,6 +118,7 @@
     <string name="msg_clear_search_history_subtitle">保存した検索をすべて削除</string>
     <string name="msg_no_media_playing">現在再生中のメディアはありません</string>
     <string name="msg_searching_current_media">検索中: %s</string>
+    <string name="msg_download_cancelled">ダウンロードがキャンセルされました</string>
 
     <!-- Notifications -->
     <string name="notification_channel_name">ダウンロード</string>
@@ -127,6 +128,7 @@
     <string name="notification_complete">ダウンロード完了</string>
     <string name="notification_failed">ダウンロード失敗</string>
     <string name="notification_progress">ダウンロード進行中</string>
+    <string name="notification_downloads_count">%d件のダウンロードが進行中</string>
 
     <!-- Dialogs -->
     <string name="dialog_reset_settings_title">設定をリセットしますか？</string>

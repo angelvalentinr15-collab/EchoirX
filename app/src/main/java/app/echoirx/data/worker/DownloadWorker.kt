@@ -43,10 +43,11 @@ class DownloadWorker @AssistedInject constructor(
 
         return notificationManager.createDownloadNotification(
             downloadId = downloadId,
-            title = if (isMerging)
+            title = if (isMerging) {
                 applicationContext.getString(R.string.notification_processing, title)
-            else
-                applicationContext.getString(R.string.notification_downloading, title),
+            } else {
+                applicationContext.getString(R.string.notification_downloading, title)
+            },
             progress = progress,
             indeterminate = isMerging
         )
@@ -70,7 +71,6 @@ class DownloadWorker @AssistedInject constructor(
 
         return try {
             val download = downloadRepository.getDownloadById(downloadId)
-            // Get modes from the SearchResult
             val modes = download?.searchResult?.modes
 
             val result = downloadRepository.processDownload(
@@ -82,13 +82,33 @@ class DownloadWorker @AssistedInject constructor(
                     setProgress(workDataOf(KEY_PROGRESS to progress))
                     downloadRepository.updateDownloadProgress(downloadId, progress)
 
-                    // Update notification with current progress
                     download?.let {
+                        val title = if (progress == 100) {
+                            applicationContext.getString(
+                                R.string.notification_processing,
+                                it.searchResult.title
+                            )
+                        } else {
+                            applicationContext.getString(
+                                R.string.notification_downloading,
+                                it.searchResult.title
+                            )
+                        }
+
                         notificationManager.updateDownloadProgress(
                             downloadId = downloadId,
-                            title = it.searchResult.title,
+                            title = title,
                             progress = progress,
-                            indeterminate = false
+                            indeterminate = progress == 100
+                        )
+
+                        setForegroundAsync(
+                            notificationManager.createDownloadNotification(
+                                downloadId = downloadId,
+                                title = title,
+                                progress = progress,
+                                indeterminate = progress == 100
+                            )
                         )
                     }
                 }
@@ -115,6 +135,7 @@ class DownloadWorker @AssistedInject constructor(
                 Result.failure()
             }
         } catch (e: CancellationException) {
+            notificationManager.cancelDownloadNotification(downloadId)
             throw e
         } catch (_: Exception) {
             val download = downloadRepository.getDownloadById(downloadId)
@@ -131,7 +152,6 @@ class DownloadWorker @AssistedInject constructor(
             try {
                 downloadRepository.updateDownloadStatus(downloadId, DownloadStatus.FAILED)
             } catch (_: Exception) {
-                // Silently ignore database errors during cleanup
             }
 
             Result.failure()

@@ -29,6 +29,7 @@ import app.echoirx.R
 import app.echoirx.data.utils.extensions.openAudioFile
 import app.echoirx.data.utils.extensions.showSnackbar
 import app.echoirx.domain.model.Download
+import app.echoirx.domain.model.DownloadStatus
 import app.echoirx.presentation.components.DownloadBottomSheet
 import app.echoirx.presentation.components.EmptyStateMessage
 import app.echoirx.presentation.components.preferences.PreferencePosition
@@ -111,6 +112,15 @@ fun HomeScreen(
                             modifier = Modifier.padding(horizontal = 16.dp),
                             download = download,
                             position = position,
+                            onCancel = if (download.status == DownloadStatus.DOWNLOADING || download.status == DownloadStatus.MERGING) {
+                                {
+                                    viewModel.cancelDownload(download)
+                                    snackbarHostState.showSnackbar(
+                                        scope = coroutineScope,
+                                        message = context.getString(R.string.msg_download_cancelled)
+                                    )
+                                }
+                            } else null,
                             onClick = null
                         )
                     }
@@ -146,6 +156,7 @@ fun HomeScreen(
                             modifier = Modifier.padding(horizontal = 16.dp),
                             download = download,
                             position = position,
+                            onCancel = null,
                             onClick = {
                                 selectedDownload = download
                                 showBottomSheet = true

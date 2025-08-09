@@ -114,10 +114,12 @@ private fun FileFormatItem(
             bottomStart = MaterialTheme.shapes.extraSmall.bottomStart,
             bottomEnd = MaterialTheme.shapes.extraSmall.bottomEnd
         )
+
         PreferencePosition.Bottom -> MaterialTheme.shapes.large.copy(
             topStart = MaterialTheme.shapes.extraSmall.topStart,
             topEnd = MaterialTheme.shapes.extraSmall.topEnd
         )
+
         PreferencePosition.Middle -> MaterialTheme.shapes.extraSmall
     }
 
