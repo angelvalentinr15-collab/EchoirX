@@ -108,7 +108,11 @@ class SearchViewModel @Inject constructor(
     }
 
     private fun cleanTidalUrl(input: String): String {
-        return input.trim().replace("/browse/", "/")
+        return if (input.contains("tidal.com", ignoreCase = true)) {
+            input.trim().replace("/browse/", "/")
+        } else {
+            input
+        }
     }
 
     fun onQueryChange(query: String) {
