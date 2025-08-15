@@ -39,9 +39,39 @@ on:
     branches: [main]
 
 jobs:
+  check:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Set up NDK
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r28c
+          link-to-sdk: true
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Compile and check for errors
+        run: |
+          ./gradlew compileReleaseKotlin
+          ./gradlew compileReleaseJavaWithJavac
+          ./gradlew lintRelease --continue
+
   build:
     if: github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'pull_request' ||
       (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'chore(app)'))
     runs-on: ubuntu-latest
 
@@ -57,8 +87,6 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
-        with:
-          cache-disabled: true
 
       - name: Set up NDK
         uses: nttld/setup-ndk@v1
