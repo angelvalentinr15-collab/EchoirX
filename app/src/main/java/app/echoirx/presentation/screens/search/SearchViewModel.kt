@@ -107,25 +107,15 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    private fun cleanTidalUrl(input: String): String {
-        return if (input.contains("tidal.com", ignoreCase = true)) {
-            input.trim().replace("/browse/", "/")
-        } else {
-            input
-        }
-    }
-
     fun onQueryChange(query: String) {
-        val cleanedQuery = cleanTidalUrl(query)
-
         _state.update {
             it.copy(
-                query = cleanedQuery,
+                query = query,
                 status = when {
-                    cleanedQuery.isEmpty() -> SearchStatus.Empty
+                    query.isEmpty() -> SearchStatus.Empty
                     else -> SearchStatus.Ready
                 },
-                isShowingHistory = cleanedQuery.isEmpty()
+                isShowingHistory = query.isEmpty()
             )
         }
     }
